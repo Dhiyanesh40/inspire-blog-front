@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Edit3 } from 'lucide-react';
 
-const Signup = () => {
+const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,10 +14,10 @@ const Signup = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<any>({});
   const { toast } = useToast();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -25,7 +25,7 @@ const Signup = () => {
       setIsLoading(false);
       toast({
         title: "Account created!",
-        description: "Welcome to Blogify. Start writing your first post!",
+        description: "Welcome to BlogCraft. Start writing your first post!",
       });
     }, 1500);
   };
@@ -39,7 +39,7 @@ const Signup = () => {
               <Edit3 className="h-8 w-8 text-white" />
             </div>
           </Link>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Join Blogify</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-2">Join BlogCraft</h2>
           <p className="text-muted-foreground">Create your account and start writing</p>
         </div>
 

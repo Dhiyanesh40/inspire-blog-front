@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Edit3, Github, Twitter, Linkedin, Mail } from 'lucide-react';
 
-const Footer = () => {
+const Footer: React.FC = () => {
   return (
     <footer className="bg-muted/30 border-t border-border mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -14,7 +14,7 @@ const Footer = () => {
                 <Edit3 className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Blogify
+                BlogCraft
               </span>
             </Link>
             <p className="text-muted-foreground max-w-md">
@@ -94,7 +94,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 Blogify. All rights reserved. Built with React & Tailwind CSS.
+            © 2024 BlogCraft. All rights reserved. Built with React & Tailwind CSS.
           </p>
           <p className="text-muted-foreground text-sm mt-2 md:mt-0">
             Made with ❤️ for writers everywhere

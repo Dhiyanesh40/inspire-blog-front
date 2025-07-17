@@ -17,8 +17,8 @@ import {
   Linkedin
 } from 'lucide-react';
 
-const BlogPost = () => {
-  const { id } = useParams();
+const BlogPost: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const [isLiked, setIsLiked] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
@@ -41,7 +41,7 @@ const BlogPost = () => {
     );
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -54,7 +54,7 @@ const BlogPost = () => {
     setIsLiked(!isLiked);
   };
 
-  const handleShare = (platform) => {
+  const handleShare = (platform: string) => {
     const url = window.location.href;
     const text = `Check out this amazing blog post: ${blog.title}`;
     

@@ -3,11 +3,16 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Moon, Sun, Edit3 } from 'lucide-react';
 
-const Navbar = ({ darkMode, toggleDarkMode }) => {
+interface NavbarProps {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path;
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -21,7 +26,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
               <Edit3 className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Blogify
+              BlogCraft
             </span>
           </Link>
 

@@ -1,6 +1,6 @@
-// Mock blog data for the blogging platform
+import { Blog } from '../types/blog';
 
-export const mockBlogs = [
+export const mockBlogs: Blog[] = [
   {
     id: '1',
     title: 'The Future of Web Development: Trends to Watch in 2024',
@@ -566,7 +566,7 @@ Start your TypeScript journey today. Your future self (and your team) will thank
 ];
 
 export const featuredBlog = mockBlogs[0];
-export const getRandomBlogs = (count = 3) => {
+export const getRandomBlogs = (count: number = 3) => {
   const shuffled = [...mockBlogs].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
