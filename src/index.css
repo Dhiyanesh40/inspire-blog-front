@@ -170,7 +170,7 @@
   
   /* Blog content styling */
   .prose-blog {
-    @apply max-w-none prose prose-lg prose-slate dark:prose-invert;
+    @apply max-w-none;
   }
   
   .prose-blog h1 {
