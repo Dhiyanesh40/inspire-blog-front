@@ -6,7 +6,7 @@ import { getRandomBlogs } from '@/data/blogs';
 import { ArrowRight, Edit3, Users, TrendingUp, Sparkles } from 'lucide-react';
 import heroImage from '@/assets/hero-bg.jpg';
 
-const Landing: React.FC = () => {
+const Landing = () => {
   const featuredBlogs = getRandomBlogs(3);
 
   return (
@@ -71,7 +71,7 @@ const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              Why Choose BlogCraft?
+              Why Choose Blogify?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Everything you need to create, share, and grow your audience in one beautiful platform.
@@ -166,7 +166,7 @@ const Landing: React.FC = () => {
             Ready to Share Your Story?
           </h2>
           <p className="text-xl text-white/90 mb-8 animate-fade-in">
-            Join thousands of writers who trust BlogCraft to share their ideas with the world.
+            Join thousands of writers who trust Blogify to share their ideas with the world.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">

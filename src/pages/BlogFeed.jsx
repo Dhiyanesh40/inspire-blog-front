@@ -6,9 +6,9 @@ import BlogCard from '@/components/BlogCard';
 import { mockBlogs } from '@/data/blogs';
 import { Search, Filter, Sparkles } from 'lucide-react';
 
-const BlogFeed: React.FC = () => {
+const BlogFeed = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState(null);
 
   // Get all unique tags
   const allTags = Array.from(new Set(mockBlogs.flatMap(blog => blog.tags)));

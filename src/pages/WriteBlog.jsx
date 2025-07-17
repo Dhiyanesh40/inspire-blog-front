@@ -16,18 +16,18 @@ import {
   Clock
 } from 'lucide-react';
 
-const WriteBlog: React.FC = () => {
+const WriteBlog = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [summary, setSummary] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState([]);
   const [currentTag, setCurrentTag] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [isPreview, setIsPreview] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const { toast } = useToast();
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleContentChange = (e) => {
     const text = e.target.value;
     setContent(text);
     setWordCount(text.trim().split(/\s+/).filter(word => word.length > 0).length);
@@ -40,11 +40,11 @@ const WriteBlog: React.FC = () => {
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
+  const removeTag = (tagToRemove) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       addTag();

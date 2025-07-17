@@ -1,15 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Blog } from '@/types/blog';
 import { Calendar, Clock, User, Heart, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-interface BlogCardProps {
-  blog: Blog;
-}
-
-const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
-  const formatDate = (dateString: string) => {
+const BlogCard = ({ blog }) => {
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
