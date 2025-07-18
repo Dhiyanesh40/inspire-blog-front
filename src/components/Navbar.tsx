@@ -1,16 +1,44 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Moon, Sun, Edit3 } from 'lucide-react';
+import { Moon, Sun, PenTool, User, Search, LogOut, Settings } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { User as UserType } from '@supabase/supabase-js';
 
 interface NavbarProps {
   darkMode: boolean;
   toggleDarkMode: () => void;
+  user: UserType | null;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
+const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
+  const { signOut } = useAuth();
+  const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully",
+      });
+    }
+  };
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -23,10 +51,10 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 hover-glow">
             <div className="bg-gradient-primary p-2 rounded-lg">
-              <Edit3 className="h-6 w-6 text-white" />
+              <PenTool className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              BlogCraft
+              Blogify
             </span>
           </Link>
 
@@ -48,14 +76,16 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
             >
               Blogs
             </Link>
-            <Link
-              to="/write"
-              className={`text-sm font-medium transition-smooth hover:text-primary ${
-                isActive('/write') ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              Write
-            </Link>
+            {user && (
+              <Link
+                to="/write"
+                className={`text-sm font-medium transition-smooth hover:text-primary ${
+                  isActive('/write') ? 'text-primary' : 'text-muted-foreground'
+                }`}
+              >
+                Write
+              </Link>
+            )}
           </div>
 
           {/* Desktop Actions */}
@@ -68,16 +98,45 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
             >
               {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Link to="/login">
-              <Button variant="outline" size="sm" className="transition-smooth hover-lift">
-                Login
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button size="sm" className="bg-gradient-primary hover:opacity-90 transition-smooth hover-lift">
-                Sign Up
-              </Button>
-            </Link>
+            <Button variant="ghost" size="sm">
+              <Search className="h-4 w-4" />
+            </Button>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <User className="h-4 w-4" />
+                    Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2">
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline" size="sm" className="transition-smooth hover-lift">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button size="sm" className="bg-gradient-primary hover:opacity-90 transition-smooth hover-lift">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -96,7 +155,10 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
               onClick={toggleMenu}
               className="transition-smooth"
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Open menu</span>
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </Button>
           </div>
         </div>
@@ -123,35 +185,65 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
               >
                 Blogs
               </Link>
-              <Link
-                to="/write"
-                className={`block px-3 py-2 text-sm font-medium rounded-md transition-smooth ${
-                  isActive('/write') ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Write
-              </Link>
+              {user && (
+                <Link
+                  to="/write"
+                  className={`block px-3 py-2 text-sm font-medium rounded-md transition-smooth ${
+                    isActive('/write') ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Write
+                </Link>
+              )}
               <div className="border-t border-border pt-3 mt-3">
-                <Link to="/login">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full mb-2 transition-smooth"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button
-                    size="sm"
-                    className="w-full bg-gradient-primary hover:opacity-90 transition-smooth"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Sign Up
-                  </Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Link to="/dashboard">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mb-2 transition-smooth"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full transition-smooth"
+                      onClick={() => {
+                        handleSignOut();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mb-2 transition-smooth"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Login
+                      </Button>
+                    </Link>
+                    <Link to="/signup">
+                      <Button
+                        size="sm"
+                        className="w-full bg-gradient-primary hover:opacity-90 transition-smooth"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

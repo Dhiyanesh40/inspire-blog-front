@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BlogCard from '@/components/BlogCard';
-import { mockBlogs } from '@/data/blogs';
+import { useBlogs } from '@/hooks/useBlogs';
 import { Search, Filter, Sparkles } from 'lucide-react';
 
 const BlogFeed: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const { blogs, loading } = useBlogs();
 
   // Get all unique tags
-  const allTags = Array.from(new Set(mockBlogs.flatMap(blog => blog.tags)));
+  const allTags = Array.from(new Set(blogs.flatMap(blog => blog.tags)));
 
   // Filter blogs based on search and tag
-  const filteredBlogs = mockBlogs.filter(blog => {
+  const filteredBlogs = blogs.filter(blog => {
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          blog.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.author.toLowerCase().includes(searchTerm.toLowerCase());
+                         (blog.profiles?.display_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesTag = !selectedTag || blog.tags.includes(selectedTag);
     
@@ -28,6 +29,14 @@ const BlogFeed: React.FC = () => {
     setSearchTerm('');
     setSelectedTag(null);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8">

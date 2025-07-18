@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useBlogs } from '@/hooks/useBlogs';
 import { 
   Save, 
   Eye, 
@@ -26,6 +29,9 @@ const WriteBlog: React.FC = () => {
   const [isPreview, setIsPreview] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { createBlog } = useBlogs();
+  const navigate = useNavigate();
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
@@ -58,20 +64,42 @@ const WriteBlog: React.FC = () => {
     });
   };
 
-  const handlePublish = () => {
-    if (!title.trim() || !content.trim()) {
+  const handlePublish = async () => {
+    if (!title.trim() || !content.trim() || !user) {
       toast({
-        title: "Missing Information",
+        title: "Missing Information", 
         description: "Please fill in the title and content before publishing.",
         variant: "destructive"
       });
       return;
     }
 
-    toast({
-      title: "Blog Published!",
-      description: "Your blog post has been published successfully.",
-    });
+    const blogData = {
+      title,
+      summary: summary || title,
+      content,
+      author_id: user.id,
+      cover_image: coverImage,
+      tags,
+      read_time: estimatedReadTime,
+      published: true
+    };
+
+    const { error } = await createBlog(blogData);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to publish blog post",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Blog Published!",
+        description: "Your blog post has been published successfully.",
+      });
+      navigate('/dashboard');
+    }
   };
 
   const estimatedReadTime = Math.ceil(wordCount / 200);
