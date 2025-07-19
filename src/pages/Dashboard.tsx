@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setUserBlogs((data || []) as Blog[]);
+        setUserBlogs(data || []);
       } catch (error) {
         console.error('Error fetching user blogs:', error);
       }

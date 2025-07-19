@@ -36,7 +36,7 @@ export const useBlogs = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBlogs((data || []) as Blog[]);
+      setBlogs(data || []);
     } catch (error) {
       console.error('Error fetching blogs:', error);
     } finally {
