@@ -23,6 +23,7 @@ export interface Blog {
     display_name: string;
     avatar_url?: string;
     role?: string;
+    username?: string;
   } | null;
 }
 
@@ -36,7 +37,7 @@ export const useBlogs = () => {
         .from('blogs')
         .select(`
           *,
-          profiles!blogs_author_id_fkey (display_name, avatar_url, role)
+          profiles!inner (display_name, avatar_url, role, username)
         `)
         .eq('published', true)
         .order('created_at', { ascending: false });
@@ -117,7 +118,7 @@ export const useBlogs = () => {
         .from('blogs')
         .select(`
           *,
-          profiles!blogs_author_id_fkey (display_name, avatar_url, role)
+          profiles!inner (display_name, avatar_url, role, username)
         `)
         .eq('id', id)
         .single();

@@ -44,13 +44,13 @@ const BlogFeed: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
-            Discover Amazing{' '}
+            Welcome to{' '}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
-              Stories
+              Blogify
             </span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore thousands of articles from passionate writers around the world.
+            Your social blogging platform - Discover, Share, and Connect through Stories
           </p>
         </div>
 

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useBlogs, Blog } from '@/hooks/useBlogs';
 import { useToast } from '@/hooks/use-toast';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Edit, Trash2, Eye, PlusCircle, Calendar, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +14,7 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { blogs, loading, deleteBlog, updateBlog, fetchBlogs } = useBlogs();
   const { toast } = useToast();
+  const { profile } = useUserRole();
   const [userBlogs, setUserBlogs] = useState<Blog[]>([]);
 
   useEffect(() => {
@@ -86,7 +88,12 @@ const Dashboard: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">My Dashboard</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Welcome, {profile?.display_name || 'User'}!
+            </h1>
+            <p className="text-muted-foreground">
+              {user?.email} • @{profile?.username || 'username'} • {profile?.role || 'user'}
+            </p>
             <p className="text-muted-foreground">Manage your blog posts and track your progress</p>
           </div>
           <Link to="/write">

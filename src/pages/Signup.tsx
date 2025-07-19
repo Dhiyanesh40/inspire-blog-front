@@ -9,6 +9,7 @@ import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Edit3 } from 'lucide-react';
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -33,7 +34,7 @@ const Signup: React.FC = () => {
 
     setIsLoading(true);
     
-    const { error } = await signUp(formData.email, formData.password, formData.name);
+    const { error } = await signUp(formData.email, formData.password, formData.name, formData.username);
     
     if (error) {
       toast({
@@ -83,6 +84,22 @@ const Signup: React.FC = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Enter your name" 
+                  className="pl-10" 
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Username</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input 
+                  type="text" 
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Choose a unique username" 
                   className="pl-10" 
                   required
                 />

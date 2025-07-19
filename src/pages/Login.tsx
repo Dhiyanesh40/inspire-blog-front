@@ -68,20 +68,20 @@ const Login: React.FC = () => {
         {/* Form */}
         <div className="bg-gradient-card rounded-xl shadow-elegant border border-border/50 p-8 animate-slide-up">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+            {/* Email or Username */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                Email Address
+                Email or Username
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Enter your email"
+                  placeholder="Enter your email or username"
                   className="pl-10"
                   required
                 />
