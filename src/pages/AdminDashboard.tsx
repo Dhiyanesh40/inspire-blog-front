@@ -1,47 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
-import { useBlogs, Blog } from '@/hooks/useBlogs';
+import { useAdminBlogs } from '@/hooks/useAdminBlogs';
 import { useToast } from '@/hooks/use-toast';
-import { Edit, Trash2, Eye, PlusCircle, Calendar, Heart } from 'lucide-react';
+import { Edit, Trash2, Eye, Calendar, Heart, Shield, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 
-const Dashboard: React.FC = () => {
+const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { blogs, loading, deleteBlog, updateBlog, fetchBlogs } = useBlogs();
+  const { allBlogs, loading, adminDeleteBlog, adminUpdateBlog } = useAdminBlogs();
   const { toast } = useToast();
-  const [userBlogs, setUserBlogs] = useState<Blog[]>([]);
 
-  useEffect(() => {
-    const fetchUserBlogs = async () => {
-      if (!user) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('blogs')
-          .select(`
-            *,
-            profiles!blogs_author_id_fkey (display_name, avatar_url, role)
-          `)
-          .eq('author_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setUserBlogs((data as any) || []);
-      } catch (error) {
-        console.error('Error fetching user blogs:', error);
-      }
-    };
-
-    fetchUserBlogs();
-  }, [user, blogs]);
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this blog?')) {
-      const { error } = await deleteBlog(id);
+  const handleAdminDelete = async (id: string, title: string) => {
+    if (window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+      const { error } = await adminDeleteBlog(id);
       if (error) {
         toast({
           title: "Error",
@@ -57,8 +31,8 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleTogglePublish = async (blog: Blog) => {
-    const { error } = await updateBlog(blog.id, { published: !blog.published });
+  const handleAdminTogglePublish = async (blog: any) => {
+    const { error } = await adminUpdateBlog(blog.id, { published: !blog.published });
     if (error) {
       toast({
         title: "Error",
@@ -81,30 +55,29 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  const publishedBlogs = allBlogs.filter(blog => blog.published);
+  const totalLikes = allBlogs.reduce((total, blog) => total + (blog.likes || 0), 0);
+  const uniqueAuthors = new Set(allBlogs.map(blog => blog.author_id)).size;
+
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center gap-3 mb-8">
+          <Shield className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">My Dashboard</h1>
-            <p className="text-muted-foreground">Manage your blog posts and track your progress</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage all blogs and moderate content</p>
           </div>
-          <Link to="/write">
-            <Button className="bg-gradient-primary hover:opacity-90 transition-smooth">
-              <PlusCircle className="h-5 w-5 mr-2" />
-              New Post
-            </Button>
-          </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Blogs</CardTitle>
               <Edit className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{userBlogs.length}</div>
+              <div className="text-2xl font-bold">{allBlogs.length}</div>
             </CardContent>
           </Card>
 
@@ -114,9 +87,7 @@ const Dashboard: React.FC = () => {
               <Eye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {userBlogs.filter(blog => blog.published).length}
-              </div>
+              <div className="text-2xl font-bold">{publishedBlogs.length}</div>
             </CardContent>
           </Card>
 
@@ -126,30 +97,33 @@ const Dashboard: React.FC = () => {
               <Heart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {userBlogs.reduce((total, blog) => total + blog.likes, 0)}
-              </div>
+              <div className="text-2xl font-bold">{totalLikes}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Authors</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{uniqueAuthors}</div>
             </CardContent>
           </Card>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-foreground">Your Posts</h2>
+          <h2 className="text-2xl font-bold text-foreground">All Blogs</h2>
           
-          {userBlogs.length === 0 ? (
+          {allBlogs.length === 0 ? (
             <Card>
               <CardContent className="text-center py-12">
-                <p className="text-muted-foreground mb-4">You haven't written any posts yet.</p>
-                <Link to="/write">
-                  <Button className="bg-gradient-primary hover:opacity-90 transition-smooth">
-                    Write Your First Post
-                  </Button>
-                </Link>
+                <p className="text-muted-foreground">No blogs found.</p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid gap-4">
-              {userBlogs.map((blog) => (
+              {allBlogs.map((blog) => (
                 <Card key={blog.id} className="border border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
@@ -159,23 +133,33 @@ const Dashboard: React.FC = () => {
                           <Badge variant={blog.published ? "default" : "secondary"}>
                             {blog.published ? "Published" : "Draft"}
                           </Badge>
+                          {blog.profiles?.role === 'admin' && (
+                            <Badge variant="destructive" className="text-xs">
+                              Admin
+                            </Badge>
+                          )}
                         </div>
                         
                         <p className="text-muted-foreground mb-3 line-clamp-2">{blog.summary}</p>
                         
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
                             {new Date(blog.created_at).toLocaleDateString()}
                           </div>
                           <div className="flex items-center gap-1">
                             <Heart className="h-4 w-4" />
-                            {blog.likes} likes
+                            {blog.likes || 0} likes
                           </div>
-                          <div>{blog.read_time} min read</div>
+                          <div>{blog.read_time || 5} min read</div>
                         </div>
 
-                        {blog.tags.length > 0 && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-muted-foreground">Author:</span>
+                          <span className="font-medium">{blog.profiles?.display_name || 'Unknown'}</span>
+                        </div>
+
+                        {blog.tags && blog.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-3">
                             {blog.tags.map((tag, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
@@ -190,7 +174,7 @@ const Dashboard: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleTogglePublish(blog)}
+                          onClick={() => handleAdminTogglePublish(blog)}
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           {blog.published ? "Unpublish" : "Publish"}
@@ -206,7 +190,7 @@ const Dashboard: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDelete(blog.id)}
+                          onClick={() => handleAdminDelete(blog.id, blog.title)}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4 mr-1" />
@@ -225,4 +209,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;

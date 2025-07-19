@@ -13,6 +13,8 @@ import WriteBlog from "./pages/WriteBlog";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import { useUserRole } from "./hooks/useUserRole";
 import NotFound from "./pages/NotFound";
 import { useAuth } from "./hooks/useAuth";
 
@@ -21,6 +23,7 @@ const queryClient = new QueryClient();
 const App = () => {
   const [darkMode, setDarkMode] = useState(false);
   const { user, loading } = useAuth();
+  const { isAdmin } = useUserRole();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -64,9 +67,13 @@ const App = () => {
                 path="/write" 
                 element={user ? <WriteBlog /> : <Navigate to="/login" />} 
               />
-              <Route 
+               <Route 
                 path="/dashboard" 
                 element={user ? <Dashboard /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/admin" 
+                element={user && isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" />} 
               />
               <Route 
                 path="/login" 

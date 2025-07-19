@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+
+type BlogFromDB = Database['public']['Tables']['blogs']['Row'] & {
+  profiles?: Database['public']['Tables']['profiles']['Row'] | null;
+};
 
 export interface Blog {
   id: string;
@@ -17,6 +22,7 @@ export interface Blog {
   profiles?: {
     display_name: string;
     avatar_url?: string;
+    role?: string;
   } | null;
 }
 
@@ -30,13 +36,13 @@ export const useBlogs = () => {
         .from('blogs')
         .select(`
           *,
-          profiles (display_name, avatar_url)
+          profiles!blogs_author_id_fkey (display_name, avatar_url, role)
         `)
         .eq('published', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBlogs(data || []);
+      setBlogs((data as any) || []);
     } catch (error) {
       console.error('Error fetching blogs:', error);
     } finally {
@@ -111,7 +117,7 @@ export const useBlogs = () => {
         .from('blogs')
         .select(`
           *,
-          profiles (display_name, avatar_url)
+          profiles!blogs_author_id_fkey (display_name, avatar_url, role)
         `)
         .eq('id', id)
         .single();

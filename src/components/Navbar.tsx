@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Moon, Sun, PenTool, User, Search, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
 import { 
   DropdownMenu,
@@ -20,6 +21,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
   const { signOut } = useAuth();
+  const { isAdmin } = useUserRole();
   const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -117,6 +119,14 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
                       Dashboard
                     </Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center gap-2">
+                        <Settings className="h-4 w-4" />
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2">
                     <LogOut className="h-4 w-4" />
                     Sign Out
@@ -209,6 +219,18 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
                         Dashboard
                       </Button>
                     </Link>
+                    {isAdmin && (
+                      <Link to="/admin">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mb-2 transition-smooth"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Admin Panel
+                        </Button>
+                      </Link>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
