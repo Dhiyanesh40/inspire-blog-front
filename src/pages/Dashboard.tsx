@@ -3,74 +3,64 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
-import { useBlogs, Blog } from '@/hooks/useBlogs';
 import { useToast } from '@/hooks/use-toast';
-import { useUserRole } from '@/hooks/useUserRole';
 import { Edit, Trash2, Eye, PlusCircle, Calendar, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { apiService, Blog } from '@/lib/api';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const { blogs, loading, deleteBlog, updateBlog, fetchBlogs } = useBlogs();
   const { toast } = useToast();
-  const { profile } = useUserRole();
   const [userBlogs, setUserBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserBlogs = async () => {
-      if (!user) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('blogs')
-          .select(`
-            *,
-            profiles!blogs_author_id_fkey (display_name, avatar_url, role)
-          `)
-          .eq('author_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setUserBlogs((data as any) || []);
-      } catch (error) {
-        console.error('Error fetching user blogs:', error);
-      }
-    };
-
     fetchUserBlogs();
-  }, [user, blogs]);
+  }, []);
+
+  const fetchUserBlogs = async () => {
+    try {
+      const data = await apiService.getUserBlogs();
+      setUserBlogs(data);
+    } catch (error) {
+      console.error('Error fetching user blogs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
-      const { error } = await deleteBlog(id);
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to delete blog",
-          variant: "destructive",
-        });
-      } else {
+      try {
+        await apiService.deleteBlog(id);
+        await fetchUserBlogs();
         toast({
           title: "Success",
           description: "Blog deleted successfully",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
         });
       }
     }
   };
 
   const handleTogglePublish = async (blog: Blog) => {
-    const { error } = await updateBlog(blog.id, { published: !blog.published });
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update blog",
-        variant: "destructive",
-      });
-    } else {
+    try {
+      await apiService.updateBlog(blog.id, { published: !blog.published });
+      await fetchUserBlogs();
       toast({
         title: "Success",
         description: `Blog ${blog.published ? 'unpublished' : 'published'} successfully`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
       });
     }
   };
@@ -89,10 +79,10 @@ const Dashboard: React.FC = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Welcome, {profile?.display_name || 'User'}!
+              Welcome, {user?.displayName || 'User'}!
             </h1>
             <p className="text-muted-foreground">
-              {user?.email} • @{profile?.username || 'username'} • {profile?.role || 'user'}
+              {user?.email} • @{user?.username || 'username'} • {user?.role || 'user'}
             </p>
             <p className="text-muted-foreground">Manage your blog posts and track your progress</p>
           </div>

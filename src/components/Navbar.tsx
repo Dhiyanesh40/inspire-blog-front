@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, PenTool, User, Search, LogOut, Settings } from 'lucide-react';
+import { Moon, Sun, PenTool, User as UserIcon, Search, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
 import { 
   DropdownMenu,
@@ -11,17 +10,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User as UserType } from '@supabase/supabase-js';
+import { User } from '@/lib/api';
 
 interface NavbarProps {
   darkMode: boolean;
   toggleDarkMode: () => void;
-  user: UserType | null;
+  user: User | null;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
   const { signOut } = useAuth();
-  const { isAdmin } = useUserRole();
   const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -108,8 +106,8 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-2">
-                    <User className="h-4 w-4" />
-                    Account
+                    <UserIcon className="h-4 w-4" />
+                    {user.displayName}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -119,7 +117,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
                       Dashboard
                     </Link>
                   </DropdownMenuItem>
-                  {isAdmin && (
+                  {user.role === 'admin' && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="flex items-center gap-2">
                         <Settings className="h-4 w-4" />
@@ -219,7 +217,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, user }) => {
                         Dashboard
                       </Button>
                     </Link>
-                    {isAdmin && (
+                    {user.role === 'admin' && (
                       <Link to="/admin">
                         <Button
                           variant="outline"

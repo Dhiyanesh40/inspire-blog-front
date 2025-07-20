@@ -1,31 +1,7 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
+import { apiService, Blog } from '@/lib/api';
 
-type BlogFromDB = Database['public']['Tables']['blogs']['Row'] & {
-  profiles?: Database['public']['Tables']['profiles']['Row'] | null;
-};
-
-export interface Blog {
-  id: string;
-  title: string;
-  summary: string;
-  content: string;
-  author_id: string;
-  cover_image?: string;
-  tags: string[];
-  read_time: number;
-  likes: number;
-  published: boolean;
-  created_at: string;
-  updated_at: string;
-  profiles?: {
-    display_name: string;
-    avatar_url?: string;
-    role?: string;
-    username?: string;
-  } | null;
-}
+export type { Blog };
 
 export const useBlogs = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -33,17 +9,8 @@ export const useBlogs = () => {
 
   const fetchBlogs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select(`
-          *,
-          profiles!blogs_author_id_profiles_user_id_fkey (display_name, avatar_url, role, username)
-        `)
-        .eq('published', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setBlogs((data as any) || []);
+      const data = await apiService.getBlogs();
+      setBlogs(data);
     } catch (error) {
       console.error('Error fetching blogs:', error);
     } finally {
@@ -59,74 +26,46 @@ export const useBlogs = () => {
     title: string;
     summary: string;
     content: string;
-    author_id: string;
-    cover_image?: string;
+    coverImage?: string;
     tags: string[];
-    read_time: number;
+    readTime: number;
     published: boolean;
   }) => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .insert([blogData])
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await apiService.createBlog(blogData);
       await fetchBlogs();
       return { data, error: null };
-    } catch (error) {
-      return { data: null, error };
+    } catch (error: any) {
+      return { data: null, error: { message: error.message } };
     }
   };
 
   const updateBlog = async (id: string, updates: Partial<Blog>) => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await apiService.updateBlog(id, updates);
       await fetchBlogs();
       return { data, error: null };
-    } catch (error) {
-      return { data: null, error };
+    } catch (error: any) {
+      return { data: null, error: { message: error.message } };
     }
   };
 
   const deleteBlog = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('blogs')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await apiService.deleteBlog(id);
       await fetchBlogs();
       return { error: null };
-    } catch (error) {
-      return { error };
+    } catch (error: any) {
+      return { error: { message: error.message } };
     }
   };
 
   const getBlogById = async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select(`
-          *,
-          profiles!blogs_author_id_profiles_user_id_fkey (display_name, avatar_url, role, username)
-        `)
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
+      const data = await apiService.getBlogById(id);
       return { data, error: null };
-    } catch (error) {
-      return { data: null, error };
+    } catch (error: any) {
+      return { data: null, error: { message: error.message } };
     }
   };
 

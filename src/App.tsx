@@ -58,7 +58,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <div className="min-h-screen bg-background">
-            <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} user={user} />
+            <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} user={user as any} />
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/blogs" element={<BlogFeed />} />

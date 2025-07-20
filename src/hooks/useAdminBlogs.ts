@@ -1,75 +1,50 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
-
-type BlogFromDB = Database['public']['Tables']['blogs']['Row'] & {
-  profiles?: Database['public']['Tables']['profiles']['Row'] | null;
-};
+import { apiService, Blog } from '@/lib/api';
 
 export const useAdminBlogs = () => {
-  const [allBlogs, setAllBlogs] = useState<BlogFromDB[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchAllBlogs = async () => {
+  const fetchBlogs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select(`
-          *,
-          profiles!blogs_author_id_profiles_user_id_fkey (display_name, avatar_url, role, username)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setAllBlogs((data as any) || []);
+      const data = await apiService.getAdminBlogs();
+      setBlogs(data);
     } catch (error) {
-      console.error('Error fetching all blogs:', error);
+      console.error('Error fetching blogs:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllBlogs();
+    fetchBlogs();
   }, []);
 
-  const adminDeleteBlog = async (id: string) => {
+  const togglePublishStatus = async (id: string, published: boolean) => {
     try {
-      const { error } = await supabase
-        .from('blogs')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      await fetchAllBlogs();
+      await apiService.updateBlog(id, { published });
+      await fetchBlogs();
       return { error: null };
-    } catch (error) {
-      return { error };
+    } catch (error: any) {
+      return { error: { message: error.message } };
     }
   };
 
-  const adminUpdateBlog = async (id: string, updates: Partial<BlogFromDB>) => {
+  const deleteBlog = async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      await fetchAllBlogs();
-      return { data, error: null };
-    } catch (error) {
-      return { data: null, error };
+      await apiService.deleteBlog(id);
+      await fetchBlogs();
+      return { error: null };
+    } catch (error: any) {
+      return { error: { message: error.message } };
     }
   };
 
   return {
-    allBlogs,
+    blogs,
     loading,
-    adminDeleteBlog,
-    adminUpdateBlog,
-    fetchAllBlogs
+    fetchBlogs,
+    togglePublishStatus,
+    deleteBlog
   };
 };

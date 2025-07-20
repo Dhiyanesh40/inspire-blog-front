@@ -10,12 +10,12 @@ import { Link } from 'react-router-dom';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { allBlogs, loading, adminDeleteBlog, adminUpdateBlog } = useAdminBlogs();
+  const { blogs, loading, deleteBlog, togglePublishStatus } = useAdminBlogs();
   const { toast } = useToast();
 
   const handleAdminDelete = async (id: string, title: string) => {
     if (window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
-      const { error } = await adminDeleteBlog(id);
+      const { error } = await deleteBlog(id);
       if (error) {
         toast({
           title: "Error",
@@ -32,7 +32,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleAdminTogglePublish = async (blog: any) => {
-    const { error } = await adminUpdateBlog(blog.id, { published: !blog.published });
+    const { error } = await togglePublishStatus(blog.id, !blog.published);
     if (error) {
       toast({
         title: "Error",
@@ -55,9 +55,9 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
-  const publishedBlogs = allBlogs.filter(blog => blog.published);
-  const totalLikes = allBlogs.reduce((total, blog) => total + (blog.likes || 0), 0);
-  const uniqueAuthors = new Set(allBlogs.map(blog => blog.author_id)).size;
+  const publishedBlogs = blogs.filter(blog => blog.published);
+  const totalLikes = blogs.reduce((total, blog) => total + (blog.likes || 0), 0);
+  const uniqueAuthors = new Set(blogs.map(blog => blog.author_id)).size;
 
   return (
     <div className="min-h-screen bg-background py-12">
@@ -77,7 +77,7 @@ const AdminDashboard: React.FC = () => {
               <Edit className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{allBlogs.length}</div>
+              <div className="text-2xl font-bold">{blogs.length}</div>
             </CardContent>
           </Card>
 
@@ -115,7 +115,7 @@ const AdminDashboard: React.FC = () => {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-foreground">All Blogs</h2>
           
-          {allBlogs.length === 0 ? (
+          {blogs.length === 0 ? (
             <Card>
               <CardContent className="text-center py-12">
                 <p className="text-muted-foreground">No blogs found.</p>
@@ -123,7 +123,7 @@ const AdminDashboard: React.FC = () => {
             </Card>
           ) : (
             <div className="grid gap-4">
-              {allBlogs.map((blog) => (
+              {blogs.map((blog) => (
                 <Card key={blog.id} className="border border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">

@@ -78,10 +78,9 @@ const WriteBlog: React.FC = () => {
       title,
       summary: summary || title,
       content,
-      author_id: user.id,
-      cover_image: coverImage,
+      coverImage,
       tags,
-      read_time: estimatedReadTime,
+      readTime: estimatedReadTime,
       published: true
     };
 
