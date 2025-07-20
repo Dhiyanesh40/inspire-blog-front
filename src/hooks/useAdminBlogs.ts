@@ -16,7 +16,7 @@ export const useAdminBlogs = () => {
         .from('blogs')
         .select(`
           *,
-          profiles!blogs_author_id_fkey (display_name, avatar_url, role)
+          profiles!blogs_author_id_profiles_user_id_fkey (display_name, avatar_url, role, username)
         `)
         .order('created_at', { ascending: false });
 

@@ -37,7 +37,7 @@ export const useBlogs = () => {
         .from('blogs')
         .select(`
           *,
-          profiles!inner (display_name, avatar_url, role, username)
+          profiles!blogs_author_id_profiles_user_id_fkey (display_name, avatar_url, role, username)
         `)
         .eq('published', true)
         .order('created_at', { ascending: false });
@@ -118,7 +118,7 @@ export const useBlogs = () => {
         .from('blogs')
         .select(`
           *,
-          profiles!inner (display_name, avatar_url, role, username)
+          profiles!blogs_author_id_profiles_user_id_fkey (display_name, avatar_url, role, username)
         `)
         .eq('id', id)
         .single();

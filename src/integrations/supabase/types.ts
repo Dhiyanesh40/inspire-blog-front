@@ -24,6 +24,7 @@ export type Database = {
           likes: number | null
           published: boolean | null
           read_time: number | null
+          status: string | null
           summary: string
           tags: string[] | null
           title: string
@@ -38,6 +39,7 @@ export type Database = {
           likes?: number | null
           published?: boolean | null
           read_time?: number | null
+          status?: string | null
           summary: string
           tags?: string[] | null
           title: string
@@ -52,6 +54,7 @@ export type Database = {
           likes?: number | null
           published?: boolean | null
           read_time?: number | null
+          status?: string | null
           summary?: string
           tags?: string[] | null
           title?: string
